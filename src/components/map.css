@@ -1,0 +1,32 @@
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    padding: 15px;
+    color: #111;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    font-size: 15px;
+}
+
+.leaflet-popup-content {
+    text-align: center;
+    line-height: 1.4;
+}
+
+.leaflet-popup-close-button {
+    color: #333;
+    font-weight: bold;
+}
+                .leaflet-control-zoom a {
+                    background-color: #313aec; 
+                    color: rgb(255, 255, 255); 
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    line-height: 28px; 
+                    width: 30px;
+                    height: 30px;
+                    transition: background-color 0.2s;
+                    border-radius: 10px;
+                }
+                
+                .leaflet-control-zoom a:hover {
+                    background-color: #222222;
+                }

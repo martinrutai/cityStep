@@ -1,22 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
+import Map from './components/map.js';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Nigger
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Map />
     </div>
   );
 }
