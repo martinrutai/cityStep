@@ -10,10 +10,19 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+const redIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
 function Map() {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const [modal, setModal] = useState(null); // { type: 'add' | 'remove', latlng, marker }
+  const [modal, setModal] = useState(null);
 
   const markersRef = useRef([]);
 
@@ -21,7 +30,7 @@ function Map() {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const initTimeout = setTimeout(() => {
-      const map = L.map(mapContainerRef.current, { center: [51.505, -0.09], zoom: 13 });
+      const map = L.map(mapContainerRef.current, {zoomControl: false}).setView([51.505, -0.09], 13);
       mapInstanceRef.current = map;
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -37,22 +46,15 @@ function Map() {
 
               map.setView([latitude, longitude], 15);
 
-              const userMarker = L.marker([latitude, longitude])
+              const userMarker = L.marker([latitude, longitude], { icon: redIcon })
                 .addTo(map)
                 .bindPopup('You are here');
-
-              userMarker.on('click', () => {
-                setModal({ type: 'remove', marker: userMarker, latlng: userMarker.getLatLng() });
-              });
-
-              markersRef.current.push(userMarker);
             },
             (err) => console.warn('Geolocation error:', err.message),
             { enableHighAccuracy: true }
           );
         }
 
-        // Add marker on right-click
         map.on('contextmenu', function (e) {
           L.DomEvent.preventDefault(e);
           setModal({ type: 'add', latlng: e.latlng });
@@ -74,9 +76,6 @@ function Map() {
     if (modal?.latlng && mapInstanceRef.current) {
       const newMarker = L.marker(modal.latlng)
         .addTo(mapInstanceRef.current)
-        .bindPopup(
-          `📍 Custom marker<br>(${modal.latlng.lat.toFixed(5)}, ${modal.latlng.lng.toFixed(5)})`
-        );
 
       newMarker.on('click', () =>
         setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
@@ -98,7 +97,7 @@ function Map() {
   const handleCancel = () => setModal(null);
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f0f3f7', minHeight: '100vh' }}>
+    <div style={{ padding: '20px', backgroundColor: '#353535ff', minHeight: '100vh' }}>
       <div
         ref={mapContainerRef}
         style={{
@@ -110,12 +109,10 @@ function Map() {
         }}
       />
 
-      {/* Modal Overlay */}
       {modal && (
         <div
           style={{
                     width: '60vw',
-                    height: '25vh',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -123,7 +120,7 @@ function Map() {
                     zIndex: 1000,
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    top: '10%',
+                    top: '40%',
                     borderRadius: '8px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     backdropFilter: 'blur(5px)',
@@ -132,21 +129,16 @@ function Map() {
           <div
             style={{
               borderRadius: '12px',
-              padding: '25px 30px',
               boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
               textAlign: 'center',
               width: '320px',
             }}
           >
             <p style={{ fontSize: '16px', marginBottom: '20px', lineHeight: 1.5 }}>
-              {modal.type === 'add' ? 'Add new marker at:' : 'Remove marker at:'}
-              <br />
-              <strong>
-                {modal.latlng?.lat.toFixed(5)}, {modal.latlng?.lng.toFixed(5)}
-              </strong>
+              {modal.type === 'add' ? 'Add new marker here' : 'Remove this marker'}
             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '5%' }}>
               {modal.type === 'add' && (
                 <button
                   onClick={handleAddConfirm}
@@ -154,11 +146,12 @@ function Map() {
                     flex: 1,
                     background: '#4f46e5',
                     color: 'white',
-                    padding: '10px 0',
                     borderRadius: '8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontWeight: 500,
+                    height: '6vh',
+                    margin: '5%',
                   }}
                 >
                   Confirm
@@ -171,11 +164,11 @@ function Map() {
                     flex: 1,
                     background: '#ef4444',
                     color: 'white',
-                    padding: '20px 0',
                     borderRadius: '8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontWeight: 500,
+                    margin: '5%',
                 }}
                 >
                     Delete
@@ -187,11 +180,12 @@ function Map() {
                     flex: 1,
                     background: '#e0e0e0',
                     color: '#333',
-                    padding: '20px 0',
                     borderRadius: '8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontWeight: 500,
+                    height: '6vh',
+                    margin: '5%',
                     }}
                 >
                 Cancel
