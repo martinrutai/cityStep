@@ -1,6 +1,6 @@
-import React from 'react';
+import user from './user';
 
-function StatusBar({ money = 1250, level = 8, name = 'John Doe', profilePic }) {
+function StatusBar({ money = user.money, level = user.level, name = user.name, profilePic }) {
 return (
     <div
         style={{

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
+import { useUser } from './ContextUser';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -23,6 +24,7 @@ function Map() {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [modal, setModal] = useState(null);
+  const { user, deductMoney } = useUser();
 
   const markersRef = useRef([]);
 
@@ -76,6 +78,7 @@ function Map() {
     if (modal?.latlng && mapInstanceRef.current) {
       const newMarker = L.marker(modal.latlng)
         .addTo(mapInstanceRef.current)
+            deductMoney(10);
 
       newMarker.on('click', () =>
         setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
