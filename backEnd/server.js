@@ -4,9 +4,26 @@ const mysql = require('mysql');
 
 const app = express();
 app.use(cors());
+
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'carprice'
+});
+
 app.get('/', (req, res) => {
     return res.json("From server: Hello World");
 });
+
+app.get('/cars', (req, res) => {
+    const sql = "SELECT * FROM cars";
+    db.query(sql, (err, data) => {
+        if (err) return res.json("problemik: " + err);
+        return res.json(data);
+    });
+});
+
 app.listen(8081, () => {
     console.log("listening");
 });
