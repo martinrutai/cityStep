@@ -1,9 +1,13 @@
-import user from './user';
+import React from 'react';
+import { useUser } from './ContextUser';
 
-function StatusBar({ money = user.money, level = user.level, name = user.name, profilePic }) {
+function StatusBar() {
+  const { user } = useUser();
+const { money, level, name } = user;
+
 return (
     <div
-        style={{
+    style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -17,7 +21,6 @@ return (
     }}
     >
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '18px' }}></span>
         <span style={{ fontWeight: '600', fontSize: '16px', color: '#111' }}>
             ${money.toLocaleString()}
         </span>
@@ -26,23 +29,20 @@ return (
     <div style={{ textAlign: 'center', paddingLeft: '5%' }}>
         <span style={{ fontSize: '14px', color: '#666' }}>Level</span>
         <div
-            style={{
+        style={{
             fontWeight: '700',
             fontSize: '18px',
             color: '#4f46e5',
         }}
         >
-            {level}
+        {level}
         </div>
-        </div>
+    </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div
-        >
-        </div>
-        <span style={{ fontWeight: '600', color: '#111', fontSize: '15px' }}>
-            {name}
-        </span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontWeight: '600', color: '#111', fontSize: '15px' }}>
+                {name}
+            </span>
         </div>
     </div>
     );

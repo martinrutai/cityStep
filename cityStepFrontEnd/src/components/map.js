@@ -12,12 +12,13 @@ L.Icon.Default.mergeOptions({
 });
 
 const redIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+  iconUrl:
+    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 function Map() {
@@ -32,7 +33,10 @@ function Map() {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const initTimeout = setTimeout(() => {
-      const map = L.map(mapContainerRef.current, {zoomControl: false}).setView([51.505, -0.09], 13);
+      const map = L.map(mapContainerRef.current, { zoomControl: false }).setView(
+        [51.505, -0.09],
+        13
+      );
       mapInstanceRef.current = map;
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -56,11 +60,6 @@ function Map() {
             { enableHighAccuracy: true }
           );
         }
-
-        map.on('contextmenu', function (e) {
-          L.DomEvent.preventDefault(e);
-          setModal({ type: 'add', latlng: e.latlng });
-        });
       });
     }, 0);
 
@@ -74,12 +73,51 @@ function Map() {
     };
   }, []);
 
+const handlePlaceMarker = () => {
+  if (!mapInstanceRef.current) return;
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const newLatLng = L.latLng(latitude, longitude);
+
+        const isTooClose = markersRef.current.some((marker) => {
+          const existingLatLng = marker.getLatLng();
+          const distance = newLatLng.distanceTo(existingLatLng);
+          return distance < 20;
+        });
+
+        if (isTooClose) {
+          alert('You are too close to an existing marker (must be at least 20 meters away).');
+          return;
+        }
+
+        const newMarker = L.marker(newLatLng)
+          .addTo(mapInstanceRef.current)
+          .bindPopup('Marker placed here')
+          .openPopup();
+
+        deductMoney(100);
+        markersRef.current.push(newMarker);
+
+        newMarker.on('click', () =>
+          setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
+        );
+      },
+      (err) => console.warn('Geolocation error:', err.message),
+      { enableHighAccuracy: true }
+    );
+  } else {
+    alert('Geolocation not supported in your browser.');
+  }
+};
+
+
   const handleAddConfirm = () => {
     if (modal?.latlng && mapInstanceRef.current) {
-      const newMarker = L.marker(modal.latlng)
-        .addTo(mapInstanceRef.current)
+      const newMarker = L.marker(modal.latlng).addTo(mapInstanceRef.current);
       deductMoney(100);
-      console.log("hbfdyv");
 
       newMarker.on('click', () =>
         setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
@@ -102,6 +140,7 @@ function Map() {
 
   return (
     <div style={{ padding: '20px', backgroundColor: '#353535ff', minHeight: '100vh' }}>
+      {}
       <div
         ref={mapContainerRef}
         style={{
@@ -113,21 +152,41 @@ function Map() {
         }}
       />
 
+      <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+        <button
+          onClick={handlePlaceMarker}
+          style={{
+            padding: '10px 20px',
+            marginTop: '15px',
+            backgroundColor: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          }}
+        >
+          Place Marker
+        </button>
+      </div>
+
       {modal && (
         <div
           style={{
-                    width: '60vw',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'fixed',
-                    zIndex: 1000,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    top: '40%',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    backdropFilter: 'blur(5px)',
+            width: '60vw',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'fixed',
+            zIndex: 1000,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: '40%',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(5px)',
           }}
         >
           <div
@@ -163,8 +222,8 @@ function Map() {
               )}
               {modal.type === 'remove' && (
                 <button
-                onClick={handleRemoveConfirm}
-                style={{
+                  onClick={handleRemoveConfirm}
+                  style={{
                     flex: 1,
                     background: '#ef4444',
                     color: 'white',
@@ -173,33 +232,33 @@ function Map() {
                     cursor: 'pointer',
                     fontWeight: 500,
                     margin: '5%',
-                }}
+                  }}
                 >
-                    Delete
+                  Delete
                 </button>
-                )}
-                <button
+              )}
+              <button
                 onClick={handleCancel}
                 style={{
-                    flex: 1,
-                    background: '#e0e0e0',
-                    color: '#333',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    height: '6vh',
-                    margin: '5%',
-                    }}
-                >
+                  flex: 1,
+                  background: '#e0e0e0',
+                  color: '#333',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  height: '6vh',
+                  margin: '5%',
+                }}
+              >
                 Cancel
-                </button>
+              </button>
             </div>
-            </div>
+          </div>
         </div>
-        )}
+      )}
     </div>
-    );
+  );
 }
 
 export default Map;
