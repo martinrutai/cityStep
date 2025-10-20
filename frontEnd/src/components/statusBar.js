@@ -17,7 +17,6 @@ return (
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         fontFamily: 'system-ui, sans-serif',
         padding: '2% 2%',
-        top: '7vh',
     }}
     >
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -151,12 +151,12 @@ const handlePlaceMarker = () => {
         }}
       />
 
-      <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+            <div style={{ marginBottom: '10px', textAlign: 'center' }}>
         <button
           onClick={handlePlaceMarker}
           style={{
             padding: '10px 20px',
-            marginTop: '15px',
+            marginTop: '2vh',
             backgroundColor: '#4f46e5',
             color: 'white',
             border: 'none',

@@ -6,12 +6,12 @@ import { UserProvider } from './components/ContextUser.js';
 function App() {
   return (
     <UserProvider>
-      <body style={{backgroundColor: '#353535ff', overflow: 'hidden', marginTop: '7vh'}}>
+      <body style={{backgroundColor: '#353535ff', overflow: 'hidden', marginTop: '0vh'}}>
         <div className="App">
             <div style={{height: '5vh', width: '91%', margin: '5%'}}>
               <StatBar />
             </div>
-          <div style={{marginTop: '2%'}}>
+          <div style={{marginTop: '1%'}}>
             <Map />
           </div>
         </div>
