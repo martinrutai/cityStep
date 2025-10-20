@@ -78,7 +78,8 @@ function Map() {
     if (modal?.latlng && mapInstanceRef.current) {
       const newMarker = L.marker(modal.latlng)
         .addTo(mapInstanceRef.current)
-            deductMoney(10);
+      deductMoney(100);
+      console.log("hbfdyv");
 
       newMarker.on('click', () =>
         setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
