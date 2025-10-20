@@ -1,7 +1,7 @@
 import './App.css';
 import Map from './components/map.js';
 import StatBar from './components/statusBar.js';
-import { UserProvider } from './components/ContextUser';
+import { UserProvider } from './components/ContextUser.js';
 
 function App() {
   return (
