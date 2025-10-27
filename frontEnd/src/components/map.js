@@ -24,122 +24,134 @@ function Map() {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [modal, setModal] = useState(null);
-  const { user, deductMoney } = useUser();
+  const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings } = useUser();
 
-  const markersRef = useRef([]);
 
-  useEffect(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
+useEffect(() => {
+  if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    const initTimeout = setTimeout(() => {
-      const map = L.map(mapContainerRef.current, { zoomControl: false }).setView(
-        [51.505, -0.09],
-        13
-      );
-      mapInstanceRef.current = map;
+  const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([51.505, -0.09], 13);
+  mapInstanceRef.current = map;
 
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-      }).addTo(map);
-
-      map.whenReady(() => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const { latitude, longitude } = pos.coords;
-              if (!mapInstanceRef.current || !mapInstanceRef.current._loaded) return;
-
-              map.setView([latitude, longitude], 15);
-
-              const userMarker = L.marker([latitude, longitude], { icon: redIcon })
-                .addTo(map)
-                .bindPopup('You are here');
-            },
-            (err) => console.warn('Geolocation error:', err.message),
-            { enableHighAccuracy: true }
-          );
-        }
-      });
-    }, 0);
-
-    return () => {
-      clearTimeout(initTimeout);
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-      markersRef.current = [];
-    };
-  }, []);
-
-const handlePlaceMarker = () => {
-  if (!mapInstanceRef.current) return;
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        const newLatLng = L.latLng(latitude, longitude);
 
-        const isTooClose = markersRef.current.some((marker) => {
-          const existingLatLng = marker.getLatLng();
-          const distance = newLatLng.distanceTo(existingLatLng);
-          return distance < 20;
-        });
+        // 🧠 Prevent calling setView on destroyed map
+        if (!mapInstanceRef.current || !mapInstanceRef.current._loaded) return;
 
-        if (isTooClose) {
-          alert('You are too close to an existing marker (must be at least 20 meters away).');
-          return;
+        mapInstanceRef.current.setView([latitude, longitude], 15);
+
+        if (mapInstanceRef.current) {
+          L.marker([latitude, longitude], { icon: redIcon })
+            .addTo(mapInstanceRef.current)
+            .bindPopup('You are here');
         }
-
-        const newMarker = L.marker(newLatLng)
-          .addTo(mapInstanceRef.current)
-          .bindPopup('Marker placed here')
-          .openPopup();
-
-        deductMoney(100);
-        markersRef.current.push(newMarker);
-
-        newMarker.on('click', () =>
-          setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
-        );
       },
       (err) => console.warn('Geolocation error:', err.message),
       { enableHighAccuracy: true }
     );
-  } else {
-    alert('Geolocation not supported in your browser.');
   }
-};
+
+  return () => {
+    // 🧹 Clean up safely
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+  };
+}, []);
 
 
-  const handleAddConfirm = () => {
-    if (modal?.latlng && mapInstanceRef.current) {
-      const newMarker = L.marker(modal.latlng).addTo(mapInstanceRef.current);
+const handlePlaceMarker = () => {
+  if (!mapInstanceRef.current) return;
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const newLatLng = L.latLng(latitude, longitude);
+
+      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 0);
+      if (tooClose) {
+        alert('Too close to another building (min 20m).');
+        return;
+      }
+
+      if (user.money < 100) {
+        alert('Not enough money to place a building!');
+        return;
+      }
+
       deductMoney(100);
 
-      newMarker.on('click', () =>
-        setModal({ type: 'remove', marker: newMarker, latlng: newMarker.getLatLng() })
-      );
+      const marker = L.marker(newLatLng)
+        .addTo(mapInstanceRef.current)
+        .bindPopup('New Building')
+        .openPopup();
 
-      markersRef.current.push(newMarker);
-    }
-    setModal(null);
-  };
+      const newBuilding = {
+        id: Date.now(),
+        marker,
+        lat: latitude,
+        lng: longitude,
+        level: 1,
+        income: 50,
+        upgradeCost: 100,
+      };
 
-  const handleRemoveConfirm = () => {
-    if (modal?.marker && mapInstanceRef.current) {
-      mapInstanceRef.current.removeLayer(modal.marker);
-      markersRef.current = markersRef.current.filter((m) => m !== modal.marker);
-    }
-    setModal(null);
-  };
+      marker.on('click', () => setModal({ type: 'manage', building: newBuilding }));
+
+      addBuilding(newBuilding);
+    },
+    (err) => console.warn('Geolocation error:', err.message),
+    { enableHighAccuracy: true }
+  );
+};
+
+const handleUpgrade = () => {
+  const b = modal.building;
+  if (user.money < b.upgradeCost) {
+    alert('Not enough money to upgrade!');
+    return;
+  }
+
+  deductMoney(b.upgradeCost);
+
+  setBuildings((prev) =>
+    prev.map((x) =>
+      x.id === b.id
+        ? {
+            ...x,
+            level: x.level + 1,
+            income: Math.round(x.income * 1.5),
+            upgradeCost: Math.round(x.upgradeCost * 1.6),
+          }
+        : x
+    )
+  );
+
+  setModal(null);
+};
+
+// Sell building (refund 20%)
+const handleSell = () => {
+  const b = modal.building;
+  mapInstanceRef.current.removeLayer(b.marker);
+
+  const refund = Math.round(b.upgradeCost * 0.2);
+  addMoney(refund);
+
+  removeBuilding(b.id);
+  setModal(null);
+};
 
   const handleCancel = () => setModal(null);
 
   return (
     <div style={{ padding: '20px', backgroundColor: '#353535ff', minHeight: '100vh' }}>
-      {}
       <div
         ref={mapContainerRef}
         style={{
@@ -151,7 +163,7 @@ const handlePlaceMarker = () => {
         }}
       />
 
-            <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+      <div style={{ marginBottom: '10px', textAlign: 'center' }}>
         <button
           onClick={handlePlaceMarker}
           style={{
@@ -167,11 +179,11 @@ const handlePlaceMarker = () => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
           }}
         >
-          Place Marker
+          Place Building
         </button>
       </div>
 
-      {modal && (
+      {modal?.type === 'manage' && (
         <div
           style={{
             width: '60vw',
@@ -184,58 +196,51 @@ const handlePlaceMarker = () => {
             transform: 'translateX(-50%)',
             top: '40%',
             borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             backdropFilter: 'blur(5px)',
           }}
         >
           <div
             style={{
               borderRadius: '12px',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+              background: '#fff',
+              padding: '20px',
               textAlign: 'center',
               width: '320px',
             }}
           >
-            <p style={{ fontSize: '16px', marginBottom: '20px', lineHeight: 1.5 }}>
-              {modal.type === 'add' ? 'Add new marker here' : 'Remove this marker'}
-            </p>
+            <h3>🏠 Building (Level {modal.building.level})</h3>
+            <p>Income: ${modal.building.income}</p>
+            <p>Upgrade cost: ${modal.building.upgradeCost}</p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '5%' }}>
-              {modal.type === 'add' && (
-                <button
-                  onClick={handleAddConfirm}
-                  style={{
-                    flex: 1,
-                    background: '#4f46e5',
-                    color: 'white',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    height: '6vh',
-                    margin: '5%',
-                  }}
-                >
-                  Confirm
-                </button>
-              )}
-              {modal.type === 'remove' && (
-                <button
-                  onClick={handleRemoveConfirm}
-                  style={{
-                    flex: 1,
-                    background: '#ef4444',
-                    color: 'white',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    margin: '5%',
-                  }}
-                >
-                  Delete
-                </button>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+              <button
+                onClick={handleUpgrade}
+                style={{
+                  flex: 1,
+                  background: '#4f46e5',
+                  color: 'white',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '10px',
+                }}
+              >
+                Upgrade
+              </button>
+              <button
+                onClick={handleSell}
+                style={{
+                  flex: 1,
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '10px',
+                }}
+              >
+                Sell
+              </button>
               <button
                 onClick={handleCancel}
                 style={{
@@ -245,9 +250,7 @@ const handlePlaceMarker = () => {
                   borderRadius: '8px',
                   border: 'none',
                   cursor: 'pointer',
-                  fontWeight: 500,
-                  height: '6vh',
-                  margin: '5%',
+                  padding: '10px',
                 }}
               >
                 Cancel
