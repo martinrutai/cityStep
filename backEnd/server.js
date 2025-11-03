@@ -51,9 +51,7 @@ app.get('/', (req, res) => {
   res.json("From server: City Game API running 🏙️");
 });
 
-//
-// 🧍 USER ROUTES
-//
+//✅ HOTOVKA
 
 // Get all users
 app.get('/users', (req, res) => {

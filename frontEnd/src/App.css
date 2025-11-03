@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  overflow: hidden;
 }
 
 .App-logo {
@@ -12,6 +13,33 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+
+.custom-popup .leaflet-popup-content {
+  padding: 0px 0px !important;
+  margin: 0 !important;
+  text-align: center;
+  font-size: 14px;
+  color: #fff;
+  background-color: #2b2b2b;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background: #2b2b2b;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: #2b2b2b;
+}
+
+@media (max-height: 700px) {
+  .custom-popup .leaflet-popup-content {
+    font-size: 12px;
+    padding: 3px 6px !important;
+  }
+}
+
 
 .App-header {
   background-color: #282c34;

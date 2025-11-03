@@ -14,10 +14,11 @@ L.Icon.Default.mergeOptions({
 const redIcon = L.icon({
   iconUrl: "/assets/icon.png",
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  iconSize: [45, 50],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+  iconSize: [55, 48],
+  iconAnchor: [30, 55],
+  popupAnchor: [-1, -58],
+  shadowSize: [72, 57],
+  zIndex: 9,
 });
 
 function Map() {
@@ -40,7 +41,6 @@ useEffect(() => {
       (pos) => {
         const { latitude, longitude } = pos.coords;
 
-        // 🧠 Prevent calling setView on destroyed map
         if (!mapInstanceRef.current || !mapInstanceRef.current._loaded) return;
 
         mapInstanceRef.current.setView([latitude, longitude], 15);
@@ -48,7 +48,9 @@ useEffect(() => {
         if (mapInstanceRef.current) {
           L.marker([latitude, longitude], { icon: redIcon })
             .addTo(mapInstanceRef.current)
-            .bindPopup('You are here');
+            .bindPopup('You are here', {
+                className: 'custom-popup'
+              });
         }
       },
       (err) => console.warn('Geolocation error:', err.message),
@@ -89,8 +91,6 @@ const handlePlaceMarker = () => {
 
       const marker = L.marker(newLatLng)
         .addTo(mapInstanceRef.current)
-        .bindPopup('New Building')
-        .openPopup();
 
       const newBuilding = {
         id: Date.now(),
@@ -151,7 +151,7 @@ const handleSell = () => {
   const handleCancel = () => setModal(null);
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#353535ff', minHeight: '100vh' }}>
+    <div style={{ padding: '5%', backgroundColor: '#353535ff', minHeight: '100vh' }}>
       <div
         ref={mapContainerRef}
         style={{
@@ -167,8 +167,8 @@ const handleSell = () => {
         <button
           onClick={handlePlaceMarker}
           style={{
-            padding: '10px 20px',
-            marginTop: '2vh',
+            padding: '1vh 3vw',
+            marginTop: '1vh',
             backgroundColor: '#4f46e5',
             color: 'white',
             border: 'none',
@@ -186,12 +186,12 @@ const handleSell = () => {
       {modal?.type === 'manage' && (
         <div
           style={{
-            width: '60vw',
+            width: '70%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             position: 'fixed',
-            zIndex: 1000,
+            zIndex: 999,
             left: '50%',
             transform: 'translateX(-50%)',
             top: '40%',
@@ -202,17 +202,18 @@ const handleSell = () => {
           <div
             style={{
               borderRadius: '12px',
-              background: '#fff',
-              padding: '20px',
+              color: 'white',
+              backgroundColor: '#2b2b2b',
+              padding: '10%',
               textAlign: 'center',
-              width: '320px',
+              width: '80%',
             }}
           >
             <h3>🏠 Building (Level {modal.building.level})</h3>
             <p>Income: ${modal.building.income}</p>
             <p>Upgrade cost: ${modal.building.upgradeCost}</p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <div style={{ display: 'inline-flex', justifyContent: 'center', gap: '10px' }}>
               <button
                 onClick={handleUpgrade}
                 style={{

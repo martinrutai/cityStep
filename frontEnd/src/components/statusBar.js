@@ -11,22 +11,23 @@ return (
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: '#ffffff',
+        backgroundColor: '#212121ff',
         borderRadius: '12px',
         width: '95%',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         fontFamily: 'system-ui, sans-serif',
         padding: '2% 2%',
+        zIndex: 1000,
     }}
     >
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontWeight: '600', fontSize: '16px', color: '#111' }}>
+        <span style={{ fontWeight: '600', fontSize: '16px', color: 'white' }}>
             ${money.toLocaleString()}
         </span>
     </div>
 
     <div style={{ textAlign: 'center', paddingLeft: '5%' }}>
-        <span style={{ fontSize: '14px', color: '#666' }}>Level</span>
+        <span style={{ fontSize: '14px', color: 'white' }}>Level</span>
         <div
         style={{
             fontWeight: '700',
@@ -39,7 +40,7 @@ return (
     </div>
 
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontWeight: '600', color: '#111', fontSize: '15px' }}>
+            <span style={{ fontWeight: '600', color: 'white', fontSize: '15px' }}>
                 {name}
             </span>
         </div>
