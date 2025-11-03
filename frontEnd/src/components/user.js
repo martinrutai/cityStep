@@ -1,5 +1,5 @@
 const user = {
-    name: 'John Dihh',
+    name: 'JohnDihh',
     level: 67,
     money: 689,
 };

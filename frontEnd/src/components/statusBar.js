@@ -20,13 +20,13 @@ return (
         zIndex: 1000,
     }}
     >
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', width: "40%" }}>
         <span style={{ fontWeight: '600', fontSize: '16px', color: 'white' }}>
             ${money.toLocaleString()}
         </span>
     </div>
 
-    <div style={{ textAlign: 'center', paddingLeft: '5%' }}>
+    <div style={{ textAlign: 'center' }}>
         <span style={{ fontSize: '14px', color: 'white' }}>Level</span>
         <div
         style={{
@@ -39,8 +39,8 @@ return (
         </div>
     </div>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontWeight: '600', color: 'white', fontSize: '15px' }}>
+    <div style={{ display: 'flex', justifyContent: 'right', width: "40%"}}>
+            <span style={{ width: "min-content" ,fontWeight: '600', color: 'white', fontSize: '15px', textAlign: 'right' }}>
                 {name}
             </span>
         </div>
