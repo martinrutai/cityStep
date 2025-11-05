@@ -1,5 +1,6 @@
 import React from 'react';
 import { useUser } from './ContextUser';
+import { Link } from 'react-router-dom';
 
 function StatusBar() {
   const { user } = useUser();
@@ -9,6 +10,7 @@ return (
     <div
     style={{
         display: 'flex',
+        maxHeight: '34px',
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: '#212121ff',
@@ -21,7 +23,7 @@ return (
     }}
     >
     <div style={{ display: 'flex', alignItems: 'center', width: "40%" }}>
-        <span style={{ fontWeight: '600', fontSize: '16px', color: 'white' }}>
+        <span style={{ fontWeight: '600', fontSize: '16px', color: '#49b82aff' }}>
             ${money.toLocaleString()}
         </span>
     </div>
@@ -39,10 +41,16 @@ return (
         </div>
     </div>
 
-    <div style={{ display: 'flex', justifyContent: 'right', width: "40%"}}>
-            <span style={{ width: "min-content" ,fontWeight: '600', color: 'white', fontSize: '15px', textAlign: 'right' }}>
-                {name}
-            </span>
+        <div style={{ display: 'flex', justifyContent: 'right', width: "40%"}}>
+            <Link to="/profile" style={{ width: '33%', textDecoration: 'none' }}>
+                <div style={{ width: '100%', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-block' }}>
+                    <img
+                        style={{ width: '70%', maxWidth: '50px', objectFit: 'cover'}}
+                        src='https://cdn-icons-png.flaticon.com/512/9815/9815472.png'
+                        alt='pfp'
+                    />
+                </div>
+            </Link>
         </div>
     </div>
     );

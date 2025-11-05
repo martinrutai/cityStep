@@ -49,7 +49,6 @@ useEffect(() => {
         mapInstanceRef.current.setView([latitude, longitude], 15);
 
         if (mapInstanceRef.current) {
-          // place player marker behind other markers and make it non-interactive
           L.marker([latitude, longitude], { icon: redIcon, zIndexOffset: -1000, interactive: false })
             .addTo(mapInstanceRef.current)
             .bindPopup('You are here', {
@@ -63,7 +62,6 @@ useEffect(() => {
   }
 
   return () => {
-    // 🧹 Clean up safely
     if (mapInstanceRef.current) {
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
@@ -80,10 +78,8 @@ const handleGetTask = async () => {
   const tasks = ulozky(buildings);
   console.log("Generated tasks:", tasks);
 
-  // Show tasks in UI immediately (don't rely on backend)
   setModal({ type: 'tasks', tasks });
 
-  // Optional: try to save to backend but don't block UI if backend is down
   try {
     const res = await fetch('http://localhost:8081/tasks', {
       method: 'POST',
@@ -95,7 +91,6 @@ const handleGetTask = async () => {
     console.log('Tasks saved to database:', data);
   } catch (err) {
     console.warn('Could not save tasks to backend:', err);
-    // keep showing tasks in UI regardless
   }
 };
 
@@ -151,23 +146,15 @@ const handleUpgrade = () => {
 
   deductMoney(b.upgradeCost);
 
-  setBuildings((prev) =>
-    prev.map((x) =>
-      x.id === b.id
-        ? {
-            ...x,
-            level: x.level + 1,
-            income: Math.round(x.income * 1.5),
-            upgradeCost: Math.round(x.upgradeCost * 1.6),
-          }
-        : x
-    )
-  );
+  const updates = {
+    level: b.level + 1,
+    income: Math.round(b.income * 1.5),
+    upgradeCost: Math.round(b.upgradeCost * 1.6)
+  };
 
   setModal(null);
 };
 
-// Sell building (refund 20%)
 const handleSell = () => {
   const b = modal.building;
   mapInstanceRef.current.removeLayer(b.marker);
@@ -186,30 +173,23 @@ const handleSell = () => {
     if (!mapInstanceRef.current) return;
 
     if (goal) {
-      // center map on the goal
       mapInstanceRef.current.setView([goal.lat, goal.lng], 16);
 
-      // open existing marker popup if available, otherwise create a temporary marker
       if (goal.marker && goal.marker.openPopup) {
         goal.marker.openPopup();
       } else {
         const tmp = L.marker([goal.lat, goal.lng]).addTo(mapInstanceRef.current);
         tmp.bindPopup(task.goalName || `Building ${task.goalId}`).openPopup();
-        // remove the temporary marker after a short delay
         setTimeout(() => mapInstanceRef.current.removeLayer(tmp), 5000);
       }
     } else {
-      // if we don't have that building locally, just notify the user
       alert(`Goal building (id ${task.goalId}) not found locally.`);
     }
 
-    // set as active task (accepted)
     setActiveTask(task);
-    // close tasks modal
     setModal(null);
   };
 
-  // Watch user's position while a task is active and reward on arrival
   useEffect(() => {
     if (!activeTask) {
       setActiveDistance(null);
@@ -224,7 +204,6 @@ const handleSell = () => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        // find goal building
         const goal = buildings.find((b) => b.id == activeTask.goalId);
         if (!goal) {
           setActiveDistance(null);
@@ -234,21 +213,16 @@ const handleSell = () => {
         const dist = Math.round(getDistanceOnEarth(latitude, longitude, goal.lat, goal.lng));
         setActiveDistance(dist);
 
-        // threshold (meters) — consider arrived when within 30m
         if (dist <= 30) {
-          // clear the watch immediately to avoid duplicate callbacks
           try {
             navigator.geolocation.clearWatch(watchId);
           } catch (e) {
-            // ignore
           }
 
-          // reward player once
           addMoney(activeTask.reward);
           alert(`You arrived at ${activeTask.goalName}. Reward: $${activeTask.reward}`);
           setActiveTask(null);
           setActiveDistance(null);
-          // optionally: could POST completion to backend here
         }
       },
       (err) => console.warn('Geolocation watch error:', err.message),
@@ -400,7 +374,6 @@ const handleSell = () => {
               </button>
               <button
                 onClick={() => {
-                  // Accept first task quickly (convenience)
                   if (modal.tasks && modal.tasks.length > 0) {
                     handleSelectTask(modal.tasks[0]);
                   }
@@ -446,7 +419,6 @@ const handleSell = () => {
           <div style={{ marginLeft: '8px' }}>
             <button
               onClick={() => {
-                // abandon
                 setActiveTask(null);
                 setActiveDistance(null);
               }}
