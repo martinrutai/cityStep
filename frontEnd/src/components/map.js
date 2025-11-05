@@ -28,6 +28,7 @@ function Map() {
   const [modal, setModal] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [activeDistance, setActiveDistance] = useState(null);
+  const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '19vh' : '11vh');
   const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings } = useUser();
 
 
@@ -290,7 +291,8 @@ const handleSell = () => {
       {modal?.type === 'tasks' && (
         <div
           style={{
-            width: '70%',
+            width: '90%',
+            height: '50%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -315,7 +317,7 @@ const handleSell = () => {
               overflow: 'auto',
             }}
           >
-            <h3>📝 Generated Tasks</h3>
+            <h3>Generated Tasks</h3>
             {modal.tasks && modal.tasks.length === 0 && <p>No tasks available.</p>}
             {modal.tasks && modal.tasks.length > 0 && (
               <div style={{ textAlign: 'left', marginTop: '12px' }}>
@@ -323,10 +325,10 @@ const handleSell = () => {
                   <div
                     key={i}
                     style={{
-                      padding: '10px',
+                      padding: '1vw',
+                      marginBottom: '1vh',
                       borderRadius: '8px',
                       background: '#393939',
-                      marginBottom: '8px',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -334,11 +336,11 @@ const handleSell = () => {
                   >
                     <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => handleSelectTask(t)}>
                       <div style={{ fontWeight: 600 }}>{t.goalName} (to id: {t.goalId})</div>
-                      <div style={{ fontSize: '13px', color: '#ddd' }}>{t.distance} m — Reward: ${t.reward}</div>
-                      <div style={{ fontSize: '12px', color: '#bbb' }}>From building id: {t.fromId}</div>
+                      <div style={{ color: '#ddd' }}>{t.distance} m — Reward: ${t.reward}</div>
+                      <div style={{ color: '#bbb' }}>From building id: {t.fromId}</div>
                     </div>
 
-                    <div style={{ marginLeft: '12px' }}>
+                    <div style={{}}>
                       <button
                         onClick={() => handleSelectTask(t)}
                         style={{
@@ -347,7 +349,8 @@ const handleSell = () => {
                           borderRadius: '8px',
                           border: 'none',
                           cursor: 'pointer',
-                          padding: '8px 10px',
+                          width: '100%',
+                          height: '100%',
                         }}
                       >
                         Select
@@ -399,22 +402,24 @@ const handleSell = () => {
         <div
           style={{
             position: 'fixed',
-            bottom: '16px',
+            bottom: bottomMargin,
             left: '50%',
+            width: '86%',
             transform: 'translateX(-50%)',
             zIndex: 1000,
             background: '#111827',
             color: 'white',
-            padding: '12px 18px',
+            padding: '1% 1%',
             borderRadius: '10px',
+            justifyContent: 'center',
             boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
             display: 'flex',
-            gap: '12px',
+            gap: '3%',
             alignItems: 'center',
           }}
         >
-          <div style={{ fontWeight: 600 }}>{activeTask.goalName}</div>
-          <div style={{ color: '#d1d5db' }}>{activeDistance ? `${activeDistance} m` : 'Locating...'}</div>
+          <div style={{ fontWeight: 600, fontSize: 11 }}>{activeTask.goalName}</div>
+          <div style={{ color: '#d1d5db', fontSize: 11}}>{activeDistance ? `${activeDistance} m` : 'Locating...'}</div>
           <div style={{ color: '#10b981', fontWeight: 700 }}>${activeTask.reward}</div>
           <div style={{ marginLeft: '8px' }}>
             <button
@@ -428,7 +433,7 @@ const handleSell = () => {
                 borderRadius: '8px',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '8px 10px',
+                padding: '1vw 2vh',
               }}
             >
               Abandon
@@ -591,6 +596,15 @@ function Map() {
   //
   // 🗺️ INIT MAP
   //
+  useEffect(() => {
+    const handleResize = () => {
+      setBottomMargin(window.innerWidth > 350 && window.innerWidth < 600 ? '17vh' : '11vh');
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
