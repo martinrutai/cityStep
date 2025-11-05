@@ -5,12 +5,45 @@ import { useNavigate } from 'react-router-dom';
 function Profile() {
     const { user } = useUser();
     const navigate = useNavigate();
+    const [buttonSize, setButtonSize] = React.useState({
+        width: window.innerWidth >= 600 ? '15vw' : '25vw',
+        height: window.innerWidth >= 600 ? '4vw' : '3vw',
+        fontSize: window.innerWidth >= 600 ? '0.9rem' : '1rem'
+    });
+
+    React.useEffect(() => {
+        const handleResize = () => {
+            setButtonSize({
+                width: window.innerWidth >= 600 ? '15vw' : '25vw',
+                height: window.innerWidth >= 600 ? '4vw' : '7vw',
+                fontSize: window.innerWidth >= 600 ? '0.9rem' : '1rem'
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     if (!user) return null;
     const { money = 0, level = 0, name = 'Player' } = user;
 
     return (
         <div style={{ overflow: 'hidden', fontFamily: 'system-ui, sans-serif', fontWeight: '700',fontSize: '1.2rem', backgroundColor: '#2b2b2b', color: 'white', height: '100vh' }}>
-            <button onClick={() => navigate(-1)} style={{color: 'white', cursor: 'pointer' , width: '20vw', height: '7vw', fontSize: '1rem', margin: '5vw', marginBottom: '0vw', backgroundColor: '#4f46e5', border: 'none',  borderRadius: '8px'}}>&larr; Back</button>
+            <button 
+                onClick={() => navigate(-1)} 
+                style={{
+                    color: 'white', 
+                    cursor: 'pointer',
+                    width: buttonSize.width,
+                    height: buttonSize.height,
+                    fontSize: buttonSize.fontSize,
+                    margin: '5vw',
+                    marginBottom: '0vw',
+                    backgroundColor: '#4f46e5',
+                    border: 'none',
+                    borderRadius: '8px'
+                }}
+            >&larr; Back</button>
             <div style={{margin: '5vw', marginTop: '0vw'}}>
                 <h1>{name}'s</h1>
             <h1>Profile</h1>
