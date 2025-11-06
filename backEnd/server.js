@@ -1,5 +1,5 @@
 //RUTAI NIGGER KOD
-/*const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 
@@ -10,15 +10,15 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'carprice'
+    database: 'citystep'
 });
 
 app.get('/', (req, res) => {
     return res.json("From server: Hello World");
 });
 
-app.get('/cars', (req, res) => {
-    const sql = "SELECT * FROM cars";
+app.get('/users', (req, res) => {
+    const sql = "SELECT * FROM users";
     db.query(sql, (err, data) => {
         if (err) return res.json("problemik: " + err);
         return res.json(data);
@@ -27,8 +27,8 @@ app.get('/cars', (req, res) => {
 
 app.listen(8081, () => {
     console.log("listening");
-});*/
-
+});
+/*
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
@@ -43,7 +43,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'citygame'
+  database: 'carprice'
 });
 
 // ✅ Test endpoint
@@ -137,3 +137,4 @@ app.delete('/buildings/:id', (req, res) => {
 app.listen(8081, () => {
   console.log('✅ CityGame API listening on port 8081');
 });
+*/

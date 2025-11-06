@@ -27,13 +27,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    fetch('http://localhost:8081/cars')
-      .then(res => res.json())
-      .then(data => console.log(data))
-      .catch(err => console.log('Error fetching cars:', err));
-  }, []);
-
   return (
     <UserProvider>
       <BrowserRouter>

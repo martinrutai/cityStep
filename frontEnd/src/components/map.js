@@ -23,6 +23,19 @@ const redIcon = L.icon({
 });
 
 function Map() {
+
+  //databaza
+  useEffect(() => {
+    async function loadData() {
+      fetch('http://localhost:8081/users')
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.log(err));
+    }
+    loadData();
+  }, []);
+
+
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [modal, setModal] = useState(null);
@@ -30,7 +43,6 @@ function Map() {
   const [activeDistance, setActiveDistance] = useState(null);
   const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '19vh' : '11vh');
   const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings } = useUser();
-
 
 useEffect(() => {
   if (!mapContainerRef.current || mapInstanceRef.current) return;
