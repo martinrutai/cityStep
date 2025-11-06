@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
+  
+  
+
   const [addMargin, setAddMargin] = useState(false);
   const [topMargin, setTopMargin] = useState(window.innerWidth > 550 ? '0vh' : '12vh');
   const [statusBarMargin, setStatusBarMargin] = useState(window.innerWidth > 550 ? '0%' : '0%');
@@ -55,7 +58,7 @@ function App() {
                   </div>
 
                   <div style={{ marginTop: topMargin, zIndex: 1 }}>
-                    <Map />
+                    <Map/>
                   </div>
                 </div>
               </div>
