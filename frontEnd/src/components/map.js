@@ -24,18 +24,6 @@ const redIcon = L.icon({
 
 function Map() {
 
-  //databaza
-  useEffect(() => {
-    async function loadData() {
-      fetch('http://localhost:8081/users')
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.log(err));
-    }
-    loadData();
-  }, []);
-
-
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [modal, setModal] = useState(null);

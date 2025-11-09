@@ -1,7 +1,8 @@
 const user = {
-    name: 'JohnDihh',
-    level: 67,
-    money: 689,
+    id: 1,
+    name: '',
+    level: 0,
+    money: 200,
 };
 
 export default user;

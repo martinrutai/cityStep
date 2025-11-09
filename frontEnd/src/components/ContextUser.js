@@ -1,48 +1,97 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import initialUser from './user';
 
+
 const UserContext = createContext();
 
-//NIGGA RUTAI MAS TU PRIPRAVENY KOD NA DATABAZU TAK TO LEN PREPOJ A SPOJAZDNI
-// DATABASE
-// const API_URL = 'http://localhost:8081';
+const API_URL = 'http://localhost:8081';
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(initialUser);
   const [buildings, setBuildings] = useState([]); 
 
-  /* DATABASE
-  useEffect(() => {
-    const loadBuildings = async () => {
-      try {
-        const response = await fetch(`${API_URL}/users/${user.id}/buildings`);
-        if (!response.ok) throw new Error('Failed to load buildings');
-        const data = await response.json();
-        
-        // Convert backend format to frontend format
-        const loadedBuildings = data.map(b => ({
-          id: b.id,
-          lat: b.lat,
-          lng: b.lng,
-          level: b.level,
-          income: b.income,
-          upgradeCost: b.upgrade_cost
-        }));
-        
-        setBuildings(loadedBuildings);
-      } catch (err) {
-        console.error('Error loading buildings:', err);
-      }
-    };
+  const login = async (name) => {
+    try {
+      console.log(name)
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',                 // POST for sending data
+        headers: {
+          'Content-Type': 'application/json'  // tell server it’s JSON
+        },
+        body: JSON.stringify({ name })  // send the name in the body
+      });
+      if (!response.ok) throw new Error('User not found');
+      const data = await response.json();
 
-    if (user.id) {
-      loadBuildings();
+      console.log(data)
+      if (data.length === 0) {
+        alert("No user with that name");
+        return;
+      }
+      setUser(data[0]); // assuming the first match
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Login failed');
+    }
+  };
+
+  useEffect(() => {
+    if (user)
+    {
+      const loadBuildings = async () => {
+        try {
+          const response = await fetch(`${API_URL}/users/${user.id}/buildings`);
+          if (!response.ok) throw new Error('Failed to load db, riadok 19 v context user');
+          const data = await response.json();
+          // Convert backend format to frontend format
+          const loadedBuildings = data.map(b => {
+            return {
+              id: b.id,
+              lat: b.lat,
+              lng: b.lng,
+              level: b.level,
+              income: b.income,
+              upgradeCost: b.upgrade_cost
+            }
+          });
+        } catch (err) {
+          console.error('Error loading buildings:', err);
+        }
+      };
+  
+      if (user.id) {
+        loadBuildings();
+      }
     }
   }, [user.id]);
-  */
+  
+  const addBuilding = async (building) => {
+    try {
+      const response = await fetch(`${API_URL}/users/${user.id}/buildings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          building: {
+            lat: building.lat,
+            lng: building.lng,
+            level: building.level,
+            income: building.income,
+            upgradeCost: building.upgradeCost,
+            name: "markus"
+          }
+        })
+      });
 
-  const deductMoney = (amount) => {
-    /* DATABASE
+      if (!response.ok) throw new Error('Failed to save building');
+      const savedBuilding = await response.json();
+      building.id = savedBuilding.id;
+    } catch (err) {
+      console.error('Error saving building:', err);
+    }
+    setBuildings((prev) => [...prev, building]);
+  };
+
+  const deductMoney = async (amount) => {
     const newMoney = Math.max(user.money - amount, 0);
     try {
       await fetch(`${API_URL}/users/${user.id}/money`, {
@@ -53,15 +102,13 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Error updating money:', err);
     }
-    */
     setUser((prevUser) => ({
       ...prevUser,
       money: Math.max(prevUser.money - amount, 0),
     }));
   };
 
-  const addMoney = (amount) => {
-    /* DATABASE
+  const addMoney = async (amount) => {
     const newMoney = user.money + amount;
     try {
       await fetch(`${API_URL}/users/${user.id}/money`, {
@@ -72,40 +119,13 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Error updating money:', err);
     }
-    */
     setUser((prevUser) => ({
       ...prevUser,
       money: prevUser.money + amount,
     }));
   };
 
-  const addBuilding = (building) => {
-    /* DATABASE
-    try {
-      const response = await fetch(`${API_URL}/users/${user.id}/buildings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lat: building.lat,
-          lng: building.lng,
-          level: building.level,
-          income: building.income,
-          upgradeCost: building.upgradeCost
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to save building');
-      const savedBuilding = await response.json();
-      building.id = savedBuilding.id;
-    } catch (err) {
-      console.error('Error saving building:', err);
-    }
-    */
-    setBuildings((prev) => [...prev, building]);
-  };
-
-  const removeBuilding = (id) => {
-    /* DATABASE: Uncomment to delete building from database
+  const removeBuilding = async (id) => {
     try {
       await fetch(`${API_URL}/users/${user.id}/buildings/${id}`, {
         method: 'DELETE'
@@ -113,12 +133,10 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Error deleting building:', err);
     }
-    */
     setBuildings((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const updateBuilding = (id, updates) => {
-    /* DATABASE
+  const updateBuilding = async (id, updates) => {
     try {
       await fetch(`${API_URL}/users/${user.id}/buildings/${id}`, {
         method: 'PUT',
@@ -128,7 +146,6 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Error updating building:', err);
     }
-    */
     setBuildings(prev => prev.map(b => 
       b.id === id ? { ...b, ...updates } : b
     ));
@@ -154,6 +171,7 @@ export function UserProvider({ children }) {
     deductMoney,
     addMoney,
     setBuildings,
+    login,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
