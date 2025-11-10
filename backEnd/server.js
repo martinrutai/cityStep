@@ -22,10 +22,10 @@ app.post('/login', (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ message: "Name required" });
 
-  const sql = "SELECT * FROM users WHERE name = ?";
+  let sql = "SELECT * FROM users WHERE name = ?";
   db.query(sql, [name], (err, data) => {
     if (err) return res.status(500).json(err);
-    if (data.length === 0) return res.status(404).json({ message: "User not found" });
+    if (data.length === 0) return res.status(404).json({ message: "User " + name + " not found" });
     res.json(data); // return the user object
   });
 });

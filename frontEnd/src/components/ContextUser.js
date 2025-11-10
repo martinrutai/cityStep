@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useEffectEvent, useState } from 'react';
 import initialUser from './user';
 
 
@@ -12,7 +12,6 @@ export function UserProvider({ children }) {
 
   const login = async (name) => {
     try {
-      console.log(name)
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',                 // POST for sending data
         headers: {
@@ -23,7 +22,6 @@ export function UserProvider({ children }) {
       if (!response.ok) throw new Error('User not found');
       const data = await response.json();
 
-      console.log(data)
       if (data.length === 0) {
         alert("No user with that name");
         return;
@@ -54,6 +52,7 @@ export function UserProvider({ children }) {
               upgradeCost: b.upgrade_cost
             }
           });
+          setBuildings(loadedBuildings);
         } catch (err) {
           console.error('Error loading buildings:', err);
         }
@@ -64,6 +63,9 @@ export function UserProvider({ children }) {
       }
     }
   }, [user.id]);
+  useEffect(() => {
+    console.log("userove: " + buildings)
+  }, [buildings])
   
   const addBuilding = async (building) => {
     try {

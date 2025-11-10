@@ -27,7 +27,6 @@ function Profile() {
     const handleSubmit = (e) => {
         e.preventDefault();
         login(name);
-        console.log("submit" + user.money + user.name)
     };
     
     if (!user) return null;
@@ -50,7 +49,7 @@ function Profile() {
                 }}
             >&larr; Back</button>
             <div style={{margin: '5vw', marginTop: '0vw'}}>
-                <h1>{name}'s</h1>
+                <h1>{user.name === "" ? "User" : user.name}'s</h1>
             <h1>Profile</h1>
             </div>
             <div style={{display: 'flex', justifyContent: 'center'}}>

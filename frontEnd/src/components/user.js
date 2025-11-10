@@ -1,7 +1,7 @@
 const user = {
     id: 1,
-    name: '',
-    level: 0,
+    name: 'not logged in',
+    level: 1,
     money: 200,
 };
 
