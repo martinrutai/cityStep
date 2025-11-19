@@ -21,7 +21,7 @@ function Profile() {
     
     const [buttonSize, setButtonSize] = React.useState({
         width: window.innerWidth >= 600 ? '15vw' : '25vw',
-        height: window.innerWidth >= 600 ? '4vw' : '3vw',
+        height: window.innerWidth >= 600 ? '4vw' : '3vh',
         fontSize: window.innerWidth >= 600 ? '0.9rem' : '1rem'
     });
     const handleSubmit = (e) => {

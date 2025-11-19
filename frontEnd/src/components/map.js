@@ -29,8 +29,15 @@ function Map() {
   const [modal, setModal] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [activeDistance, setActiveDistance] = useState(null);
-  const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '19vh' : '11vh');
-  const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings } = useUser();
+  const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '42rvw' : '8vw');
+  const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding } = useUser();
+
+  const BUILDING_TYPES = [
+    { key: 'office', name: 'Office', cost: 150, income: 60, upgradeCost: 120, incomeMultiplier: 1.5, upgradeCostMultiplier: 1.6 },
+    { key: 'bank', name: 'Bank', cost: 300, income: 160, upgradeCost: 220, incomeMultiplier: 1.6, upgradeCostMultiplier: 1.7 },
+    { key: 'shop', name: 'Shop', cost: 100, income: 40, upgradeCost: 90, incomeMultiplier: 1.4, upgradeCostMultiplier: 1.5 },
+    { key: 'home', name: 'Home', cost: 60, income: 12, upgradeCost: 50, incomeMultiplier: 1.2, upgradeCostMultiplier: 1.3 },
+  ];
 
 useEffect(() => {
   if (!mapContainerRef.current || mapInstanceRef.current) return;
@@ -97,14 +104,24 @@ const handleGetTask = async () => {
 
 function placeBuilding(building) {
   if (!mapInstanceRef.current) return;
+  if (building.marker) return; // already placed on map
   const newLatLng = L.latLng(building.lat, building.lng);
   const marker = L.marker(newLatLng)
-  .addTo(mapInstanceRef.current)
+    .addTo(mapInstanceRef.current);
+
+  const popupText = building.name || building.type || `Building ${building.id}`;
+  marker.bindPopup(popupText, { className: 'custom-popup' });
+
+  building.marker = marker;
   marker.on('click', () => setModal({ type: 'manage', building: building }));
 }
-buildings.forEach(building => {
-  placeBuilding(building)
-});
+
+useEffect(() => {
+  if (!mapInstanceRef.current) return;
+  buildings.forEach(building => {
+    if (!building.marker) placeBuilding(building);
+  });
+}, [buildings]);
 const handlePlaceMarker = () => {
   if (!mapInstanceRef.current) return;
 
@@ -112,36 +129,45 @@ const handlePlaceMarker = () => {
     (pos) => {
       const { latitude, longitude } = pos.coords;
       const newLatLng = L.latLng(latitude, longitude);
-      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 0);
+      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 20);
       if (tooClose) {
         alert('Too close to another building (min 20m).');
         return;
       }
 
-      if (user.money < 100) {
-        alert('Not enough money to place a building!');
-        return;
-      }
-
-      deductMoney(100);
-
-      
-      const newBuilding = {
-        id: Date.now(),
-        lat: latitude,
-        lng: longitude,
-        level: 1,
-        income: 50,
-        upgradeCost: 100,
-      };
-      
-      placeBuilding(newBuilding);
-
-      addBuilding(newBuilding);
+      // Open modal to choose building type
+      setModal({ type: 'chooseType', coords: { lat: latitude, lng: longitude }, types: BUILDING_TYPES });
     },
     (err) => console.warn('Geolocation error:', err.message),
     { enableHighAccuracy: true }
   );
+};
+
+const handleChooseType = (type) => {
+  if (!modal || !modal.coords) return;
+  if (user.money < type.cost) {
+    alert('Not enough money to place this building!');
+    return;
+  }
+
+  deductMoney(type.cost);
+
+  const newBuilding = {
+    id: Date.now(),
+    lat: modal.coords.lat,
+    lng: modal.coords.lng,
+    level: 1,
+    income: type.income,
+    upgradeCost: type.upgradeCost,
+    type: type.key,
+    name: type.name,
+    incomeMultiplier: type.incomeMultiplier,
+    upgradeCostMultiplier: type.upgradeCostMultiplier,
+  };
+
+  placeBuilding(newBuilding);
+  addBuilding(newBuilding);
+  setModal(null);
 };
 
 const handleUpgrade = () => {
@@ -159,17 +185,30 @@ const handleUpgrade = () => {
     upgradeCost: Math.round(b.upgradeCost * 1.6)
   };
 
+  if (b.id) {
+    updateBuilding(b.id, updates);
+  } else {
+    // fallback: update local buildings state
+    setBuildings(prev => prev.map(x => x === b ? { ...x, ...updates } : x));
+  }
+
   setModal(null);
 };
 
 const handleSell = () => {
   const b = modal.building;
-  mapInstanceRef.current.removeLayer(b.marker);
+  if (b.marker && mapInstanceRef.current) {
+    try { mapInstanceRef.current.removeLayer(b.marker); } catch (e) {}
+  }
 
   const refund = Math.round(b.upgradeCost * 0.2);
   addMoney(refund);
 
-  removeBuilding(b.id);
+  if (b.id) {
+    removeBuilding(b.id);
+  } else {
+    setBuildings(prev => prev.filter(x => x !== b));
+  }
   setModal(null);
 };
 
@@ -398,6 +437,57 @@ const handleSell = () => {
               >
                 Accept first
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal?.type === 'chooseType' && (
+        <div
+          style={{
+            width: '90%',
+            height: '50%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'fixed',
+            zIndex: 999,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: '30%',
+            borderRadius: '8px',
+            backdropFilter: 'blur(5px)',
+          }}
+        >
+          <div
+            style={{
+              borderRadius: '12px',
+              color: 'white',
+              backgroundColor: '#2b2b2b',
+              padding: '4%',
+              textAlign: 'center',
+              width: '80%',
+              maxHeight: '60vh',
+              overflow: 'auto',
+            }}
+          >
+            <h3>Choose Building Type</h3>
+            <div style={{ textAlign: 'left', marginTop: '12px' }}>
+              {modal.types && modal.types.map((t, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', marginBottom: '8px', background: '#393939', borderRadius: '8px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{t.name}</div>
+                    <div style={{ color: '#ddd' }}>Cost: ${t.cost} — Income: ${t.income}</div>
+                  </div>
+                  <div>
+                    <button onClick={() => handleChooseType(t)} style={{ background: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', padding: '8px 12px' }}>Choose</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+              <button onClick={() => setModal(null)} style={{ background: '#4f46e5', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', padding: '10px 16px' }}>Cancel</button>
             </div>
           </div>
         </div>
