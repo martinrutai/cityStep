@@ -129,7 +129,7 @@ const handlePlaceMarker = () => {
     (pos) => {
       const { latitude, longitude } = pos.coords;
       const newLatLng = L.latLng(latitude, longitude);
-      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 20);
+      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 0);
       if (tooClose) {
         alert('Too close to another building (min 20m).');
         return;
