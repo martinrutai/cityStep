@@ -10,14 +10,14 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(initialUser);
   const [buildings, setBuildings] = useState([]); 
 
-  const login = async (name) => {
+  const login = async (loginData) => {
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',                 // POST for sending data
         headers: {
           'Content-Type': 'application/json'  // tell server it’s JSON
         },
-        body: JSON.stringify({ name })  // send the name in the body
+        body: JSON.stringify({ name: loginData.name, password: loginData.password })  // send the name in the body
       });
       if (!response.ok) throw new Error('User not found');
       const data = await response.json();
@@ -30,6 +30,23 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Login error:', err);
       alert('Login failed');
+    }
+  };
+  const register = async (data) => {
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',                 // POST for sending data
+        headers: {
+          'Content-Type': 'application/json'  // tell server it’s JSON
+        },
+        body: JSON.stringify({ name: data.name, password: data.password })  // send the name in the body
+      });
+
+        const text = await response.text(); // PREČO? aby sme videli čo server vrátil
+        console.log("Server response:", text);
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Registration failed');
     }
   };
 
@@ -174,6 +191,7 @@ export function UserProvider({ children }) {
     addMoney,
     setBuildings,
     login,
+    register
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
