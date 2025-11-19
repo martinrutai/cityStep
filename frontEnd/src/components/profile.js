@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 
 function Profile() {
     const navigate = useNavigate();
-    const { login, user } = useUser();
+    const {register, login, user } = useUser();
     const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
     React.useEffect(() => {
         const handleResize = () => {
             setButtonSize({
@@ -24,9 +25,13 @@ function Profile() {
         height: window.innerWidth >= 600 ? '4vw' : '3vh',
         fontSize: window.innerWidth >= 600 ? '0.9rem' : '1rem'
     });
-    const handleSubmit = (e) => {
+    const loginHandler = (e) => {
         e.preventDefault();
-        login(name);
+        login({name, password});
+    };
+    const registerHandler = (e) => {
+        e.preventDefault();
+        register({name, password});
     };
     
     if (!user) return null;
@@ -66,14 +71,37 @@ function Profile() {
                     <div style={{padding: '1vw', color: '#4f46e5'}}>{user.level}</div>
                 </div>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={loginHandler}>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
                 />
+                <input
+                type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your name"
+                >
+                </input>
                 <button type="submit">Login</button>
+            </form>
+            <form onSubmit={registerHandler}>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                />
+                <input
+                type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your name"
+                >
+                </input>
+                <button type="submit">Register</button>
             </form>
         </div>
     );

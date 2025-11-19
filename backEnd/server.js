@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
+const bcrypt= require('bcrypt');
 
 const app = express();
 app.use(cors());
@@ -19,14 +20,30 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const { name } = req.body;
+  const { name, password } = req.body;
   if (!name) return res.status(400).json({ message: "Name required" });
 
   let sql = "SELECT * FROM users WHERE name = ?";
   db.query(sql, [name], (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length === 0) return res.status(404).json({ message: "User " + name + " not found" });
+    const user = data[0];
+    const isValid = bcrypt.compareSync(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
     res.json(data); // return the user object
+  });
+});
+app.post('/register', (req, res) => {
+  const { name, password } = req.body;
+  if (!name || !password) return res.status(400).json({ message: "Name or password missing" });
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  let sql = "INSERT INTO users (name, password, money, level) VALUES (?, ?, 200, 1)";
+  db.query(sql, [name, hashedPassword], (err, data) => {
+    if (err) return res.status(500).json(err);
+    res.json(data);
   });
 });
 
