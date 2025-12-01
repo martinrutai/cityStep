@@ -71,38 +71,6 @@ function Profile() {
                     <div style={{padding: '1vw', color: '#4f46e5'}}>{user.level}</div>
                 </div>
             </div>
-            <form onSubmit={loginHandler} style={{display: 'block', margin: '5vw', justifyContent: 'center', alignItems: 'center'}}>
-                <input style={{margin: '1vw', height: '3vh', backgroundColor: '#212121ff', border: 'none', borderRadius: '5px'}}
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                />
-                <input style={{margin: '1vw', height: '3vh', backgroundColor: '#212121ff', border: 'none', borderRadius: '5px'}}
-                type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                >
-                </input>
-                <button type="submit" style={{margin: '1vw', backgroundColor: '#4f46e5', borderRadius: '5px', border: 'none', color: 'white', padding: '3px', height: '3vh', width: '12vw'}}>Login</button>
-            </form>
-            <form onSubmit={registerHandler} style={{display: 'block', margin: '5vw', justifyContent: 'center', alignItems: 'center'}}>
-                <input style={{margin: '1vw', height: '3vh', backgroundColor: '#212121ff', border: 'none', borderRadius: '5px'}}
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                />
-                <input style={{margin: '1vw', height: '3vh', backgroundColor: '#212121ff', border: 'none', borderRadius: '5px'}}
-                type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                >
-                </input>
-                <button type="submit" style={{margin: '1vw', backgroundColor: '#4f46e5', borderRadius: '5px', border: 'none', color: 'white', padding: '3px', height: '3vh', width: '15vw'}}>Register</button>
-            </form>
         </div>
     );
 }

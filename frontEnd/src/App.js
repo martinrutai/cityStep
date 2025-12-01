@@ -5,6 +5,7 @@ import Profile from './components/profile.js';
 import { UserProvider } from './components/ContextUser.js';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './components/login';
 
 function App() {
   
@@ -59,6 +60,7 @@ function App() {
           />
 
           <Route path="/profile" element={<Profile />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>
