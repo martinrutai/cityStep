@@ -116,15 +116,15 @@ function Login() {
                 <button type="submit" style={btnStyle}>Login</button>
             </form>
 
-            <p style={{ textAlign: 'center', margin: '3vh 0', fontSize: '1rem', color: '#ccc' }}>
+            <p style={{ textAlign: 'center', marginLeft: '4vh', fontSize: '1rem', color: '#ccc' }}>
                 — If you don't have an account —
             </p>
 
                             <button
             onClick={() => navigate('/register')}
             style={{
-                width: '50vw',
-                height: '4vh',
+                width: '45vw',
+                height: '3vh',
                 backgroundColor: '#4f46e5',
                 color: 'white',
                 border: 'none',
@@ -157,7 +157,7 @@ const inputStyle = {
 };
 
 const btnStyle = {
-                width: '50vw',
+                width: '64vw',
                 height: '4vh',
                 backgroundColor: '#4f46e5',
                 color: 'white',
