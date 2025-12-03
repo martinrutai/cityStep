@@ -9,7 +9,6 @@ const API_URL = 'http://localhost:8081';
 export function UserProvider({ children }) {
   const [user, setUser] = useState(initialUser);
   const [buildings, setBuildings] = useState([]); 
-
   const login = async (loginData) => {
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -19,14 +18,18 @@ export function UserProvider({ children }) {
         },
         body: JSON.stringify({ name: loginData.name, password: loginData.password })  // send the name in the body
       });
-      if (!response.ok) throw new Error('User not found');
+      if (!response.ok) 
+      {
+        return false;
+      }
       const data = await response.json();
 
       if (data.length === 0) {
         alert("No user with that name");
-        return;
+        return false;
       }
       setUser(data[0]); // assuming the first match
+      return true
     } catch (err) {
       console.error('Login error:', err);
       alert('Login failed');
@@ -80,9 +83,6 @@ export function UserProvider({ children }) {
       }
     }
   }, [user.id]);
-  useEffect(() => {
-    console.log("userove: " + buildings)
-  }, [buildings])
   
   const addBuilding = async (building) => {
     try {
@@ -96,7 +96,10 @@ export function UserProvider({ children }) {
             level: building.level,
             income: building.income,
             upgradeCost: building.upgradeCost,
-            name: "markus"
+            type: building.type,
+            name: building.name,
+            incomeMultiplier: building.incomeMultiplier,
+            upgradeCostMultiplier: building.upgradeCostMultiplier
           }
         })
       });

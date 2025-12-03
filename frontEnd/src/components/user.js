@@ -1,6 +1,6 @@
 const user = {
-    id: 1,
-    name: 'not logged in',
+    id: 0,
+    name: 'guest',
     level: 1,
     money: 200,
 };

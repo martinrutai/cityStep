@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 function Register() {
     const navigate = useNavigate();
     // Assuming useUser provides login, register, AND a dedicated function for OAuth login
-    const { loginUser, registerUser } = useUser(); // Renamed to clarify functionality
+    const { login, register, user } = useUser(); // Renamed to clarify functionality
 
     // State for local authentication forms
     const [name, setName] = useState('');
@@ -18,10 +18,7 @@ function Register() {
 
     const registerHandler = (e) => {
         e.preventDefault();
-        // Assume 'registerUser' handles the API call and context update
-        registerUser({ name, password });
-        // Note: You would typically check for success before navigating
-        // navigate('/');
+        register({ name, password });
     };
 
     // --- Google OAuth Handlers ---
@@ -40,7 +37,7 @@ function Register() {
 
             // 2. Call your context function to set the user state
             //    It's crucial that your context or backend handles this data.
-            loginUser(userData); 
+            login(userData); 
             
             // 3. Redirect after successful sign-in
             navigate('/');

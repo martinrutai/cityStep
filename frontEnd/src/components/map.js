@@ -31,17 +31,16 @@ function Map() {
   const [activeDistance, setActiveDistance] = useState(null);
   const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '42rvw' : '8vw');
   const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding } = useUser();
-
+  
   const BUILDING_TYPES = [
     { key: 'office', name: 'Office', cost: 150, income: 60, upgradeCost: 120, incomeMultiplier: 1.5, upgradeCostMultiplier: 1.6 },
     { key: 'bank', name: 'Bank', cost: 300, income: 160, upgradeCost: 220, incomeMultiplier: 1.6, upgradeCostMultiplier: 1.7 },
     { key: 'shop', name: 'Shop', cost: 100, income: 40, upgradeCost: 90, incomeMultiplier: 1.4, upgradeCostMultiplier: 1.5 },
     { key: 'home', name: 'Home', cost: 60, income: 12, upgradeCost: 50, incomeMultiplier: 1.2, upgradeCostMultiplier: 1.3 },
   ];
-
-useEffect(() => {
-  if (!mapContainerRef.current || mapInstanceRef.current) return;
-
+  
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
   const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([51.505, -0.09], 13);
   mapInstanceRef.current = map;
 
