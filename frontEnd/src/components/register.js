@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
-function Login() {
+function Register() {
     const navigate = useNavigate();
     // Assuming useUser provides login, register, AND a dedicated function for OAuth login
     const { loginUser, registerUser } = useUser(); // Renamed to clarify functionality
@@ -16,13 +16,12 @@ function Login() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
 
-    // --- Local Authentication Handlers ---
-    const loginHandler = (e) => {
+    const registerHandler = (e) => {
         e.preventDefault();
-        // Assume 'loginUser' handles the API call and context update
-        loginUser({ name, password }); 
+        // Assume 'registerUser' handles the API call and context update
+        registerUser({ name, password });
         // Note: You would typically check for success before navigating
-        // navigate('/'); 
+        // navigate('/');
     };
 
     // --- Google OAuth Handlers ---
@@ -82,7 +81,7 @@ function Login() {
                 ← Back
             </button>
 
-            <h1 style={{ marginTop: '5vh' }}>Login</h1>
+            <h1 style={{ marginTop: '5vh' }}>Register</h1>
 
             {/* --- GOOGLE SIGN-IN --- */}
             <div style={{ marginTop: '5vh', display: 'flex', justifyContent: 'center' }}>
@@ -94,12 +93,13 @@ function Login() {
             </div>
             
             <p style={{ textAlign: 'center', margin: '3vh 0', fontSize: '1rem', color: '#ccc' }}>
-                — OR sign in with your account —
+                — OR register in with your account —
             </p>
 
-
-            {/* LOGIN FORM */}
-            <form onSubmit={loginHandler} style={{ marginTop: '3vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {/* REGISTER FORM */}
+            <form onSubmit={registerHandler} style={{ marginTop: '3vh', display: 'flex', flexDirection: 'column', alignItems: 'center'  }}>
+                {/* Note: In a real app, you would separate Login and Register fields 
+                    or use a single form with a toggle, as they currently share the 'name' and 'password' state. */}
                 <input
                     placeholder="Username"
                     value={name}
@@ -113,15 +113,15 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     style={inputStyle}
                 />
-                <button type="submit" style={btnStyle}>Login</button>
+                <button type="submit" style={btnStyle}>Register</button>
             </form>
 
-            <p style={{ textAlign: 'center', margin: '3vh 0', fontSize: '1rem', color: '#ccc' }}>
-                — If you don't have an account —
+                        <p style={{ textAlign: 'center', margin: '3vh 0', fontSize: '1rem', color: '#ccc' }}>
+                — If you already have an account —
             </p>
 
-                            <button
-            onClick={() => navigate('/register')}
+                <button
+            onClick={() => navigate('/login')}
             style={{
                 width: '50vw',
                 height: '4vh',
@@ -137,7 +137,7 @@ function Login() {
                 fontSize: '1rem',
             }}
             >
-            Register
+            Login
             </button>
         </div>
     );
@@ -171,4 +171,4 @@ const btnStyle = {
                 fontSize: '1rem',
 };
 
-export default Login;
+export default Register;

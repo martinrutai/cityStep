@@ -71,6 +71,25 @@ function Profile() {
                     <div style={{padding: '1vw', color: '#4f46e5'}}>{user.level}</div>
                 </div>
             </div>
+    <button
+      onClick={() => navigate('/register')}
+      style={{
+        width: '50vw',
+        height: '4vh',
+        backgroundColor: '#4f46e5',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        marginTop: '1vh',
+        cursor: 'pointer',
+        display: 'block',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        fontSize: '1rem',
+      }}
+    >
+      Register
+    </button>
         </div>
     );
 }

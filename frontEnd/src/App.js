@@ -6,6 +6,7 @@ import { UserProvider } from './components/ContextUser.js';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/login';
+import Register from './components/register';
 
 function App() {
   
@@ -61,6 +62,7 @@ function App() {
 
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>
