@@ -31,6 +31,8 @@ function Map() {
   const [activeDistance, setActiveDistance] = useState(null);
   const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '42rvw' : '8vw');
   const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding } = useUser();
+  // State to manage the search input value
+  const [searchQuery, setSearchQuery] = useState('');
 
   const BUILDING_TYPES = [
     { key: 'office', name: 'Office', cost: 150, income: 60, upgradeCost: 120, incomeMultiplier: 1.5, upgradeCostMultiplier: 1.6 },
@@ -113,6 +115,7 @@ function placeBuilding(building) {
   marker.bindPopup(popupText, { className: 'custom-popup' });
 
   building.marker = marker;
+  // Toto je kľúčové pre klikanie na budovy (Manage Modal)
   marker.on('click', () => setModal({ type: 'manage', building: building }));
 }
 
@@ -123,6 +126,43 @@ useEffect(() => {
   });
 }, [buildings]);
 
+const handleRecenter = () => {
+  if (!mapInstanceRef.current) return;
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      // Fly je plynulejší ako setView
+      mapInstanceRef.current.flyTo([latitude, longitude], 15); 
+    },
+    (err) => alert('Could not find your location.'),
+    { enableHighAccuracy: true, timeout: 5000 }
+  );
+};
+
+const handleSearchBuilding = () => {
+  if (!mapInstanceRef.current || !searchQuery.trim()) return;
+
+  const query = searchQuery.trim().toLowerCase();
+  
+  // Nájde budovu, ktorej názov obsahuje hľadaný reťazec
+  const foundBuilding = buildings.find(b => 
+    b.name && b.name.toLowerCase().includes(query)
+  );
+
+  if (foundBuilding) {
+    mapInstanceRef.current.flyTo([foundBuilding.lat, foundBuilding.lng], 16);
+    
+    // Otvorí popup budovy
+    if (foundBuilding.marker) {
+        foundBuilding.marker.openPopup();
+    }
+    setSearchQuery(''); // Vyčistí input po úspešnom vyhľadaní
+  } else {
+    alert(`Building named "${searchQuery}" not found.`);
+  }
+};
+
 const handlePlaceMarker = () => {
   if (!mapInstanceRef.current) return;
 
@@ -130,7 +170,9 @@ const handlePlaceMarker = () => {
     (pos) => {
       const { latitude, longitude } = pos.coords;
       const newLatLng = L.latLng(latitude, longitude);
-      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 0);
+      
+      // OPRAVA LOGIKY VZDIALENOSTI: Preverí, či je budova príliš blízko (napr. menej ako 20m)
+      const tooClose = buildings.some((b) => newLatLng.distanceTo([b.lat, b.lng]) < 0); 
       if (tooClose) {
         alert('Too close to another building (min 20m).');
         return;
@@ -139,11 +181,11 @@ const handlePlaceMarker = () => {
       // Initial modal state: Step 1 (Choose Type)
       setModal({ 
           type: 'chooseType', 
-          step: 1, // Added step tracking
+          step: 1, 
           coords: { lat: latitude, lng: longitude }, 
           types: BUILDING_TYPES, 
-          selectedType: null, // Track selected type object
-          buildingName: '' // Track name input
+          selectedType: null, 
+          buildingName: '' 
       });
     },
     (err) => console.warn('Geolocation error:', err.message),
@@ -161,7 +203,7 @@ const handleTypeSelect = (type) => {
         ...prev,
         step: 2, // Move to step 2: Enter Name
         selectedType: type,
-        buildingName: "" // Pre-fill with a suggestion
+        buildingName: type.name + " Tower" // Suggestion
     }));
 };
 
@@ -172,7 +214,7 @@ const handleChooseType = (buildingName) => {
 
   if (!type || !modal.coords) return;
 
-  // Since cost check is done in handleTypeSelect, we only check name here
+  // Name check
   if (!buildingName || buildingName.trim() === '') {
     alert('Please enter a name for your building.');
     return;
@@ -209,8 +251,8 @@ const handleUpgrade = () => {
 
   const updates = {
     level: b.level + 1,
-    income: Math.round(b.income * 1.5),
-    upgradeCost: Math.round(b.upgradeCost * 1.6)
+    income: Math.round(b.income * b.incomeMultiplier),
+    upgradeCost: Math.round(b.upgradeCost * b.upgradeCostMultiplier)
   };
 
   if (b.id) {
@@ -229,7 +271,8 @@ const handleSell = () => {
     try { mapInstanceRef.current.removeLayer(b.marker); } catch (e) {}
   }
 
-  const refund = Math.round(b.upgradeCost * 0.2);
+  // Použijeme upgradeCost ako základ pre refund
+  const refund = Math.round(b.upgradeCost * 0.2); 
   addMoney(refund);
 
   if (b.id) {
@@ -310,6 +353,70 @@ const handleSell = () => {
 
   return (
     <div style={{ padding: '5%', backgroundColor: '#353535ff', minHeight: '100vh' }}>
+      
+      {/* MAP CONTROLS (Search and Recenter) */}
+      <div style={{ 
+          display: 'flex', 
+          gap: '1%', 
+          marginBottom: '5%', 
+          alignItems: 'center' 
+      }}>
+        {/* Search Input Field */}
+        <input
+          type="text"
+          placeholder="Search Building Name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => { // Allows pressing Enter to search
+            if (e.key === 'Enter') handleSearchBuilding();
+          }}
+          style={{
+            flexGrow: 1, // Takes up available space
+            padding: '10px',
+            borderRadius: '8px',
+            border: '1px solid #555',
+            backgroundColor: '#393939',
+            color: 'white',
+            fontSize: '16px',
+          }}
+        />
+
+        {/* Search Button */}
+        <button
+          onClick={handleSearchBuilding}
+          style={{
+            padding: '10px 15px',
+            backgroundColor: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 500,
+          }}
+        >
+          🔍
+        </button>
+
+        {/* Recenter Button */}
+        <button
+          onClick={handleRecenter}
+          style={{
+            padding: '10px 15px',
+            backgroundColor: '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 500,
+          }}
+        >
+          📍
+        </button>
+      </div>
+      {/* END MAP CONTROLS */}
+      
       <div
         ref={mapContainerRef}
         style={{
@@ -499,7 +606,128 @@ const handleSell = () => {
         </div>
       )}
 
-      {/* ... (Active task banner and Manage modal remain the same) ... */}
+      {/* Active task banner */}
+      {activeTask && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: bottomMargin,
+            left: '50%',
+            width: '86%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            background: '#111827',
+            color: 'white',
+            padding: '1% 1%',
+            borderRadius: '10px',
+            justifyContent: 'center',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
+            display: 'flex',
+            gap: '3%',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ fontWeight: 600, fontSize: 11 }}>{activeTask.goalName}</div>
+          <div style={{ color: '#d1d5db', fontSize: 11}}>{activeDistance ? `${activeDistance} m` : 'Locating...'}</div>
+          <div style={{ color: '#10b981', fontWeight: 700 }}>${activeTask.reward}</div>
+          <div style={{ marginLeft: '8px' }}>
+            <button
+              onClick={() => {
+                setActiveTask(null);
+                setActiveDistance(null);
+              }}
+              style={{
+                background: '#ef4444',
+                color: 'white',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '1vw 2vh',
+              }}
+            >
+              Abandon
+            </button>
+          </div>
+        </div>
+      )}
+
+      {modal?.type === 'manage' && (
+        <div
+          style={{
+            width: '70%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'fixed',
+            zIndex: 999,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: '40%',
+            borderRadius: '8px',
+            backdropFilter: 'blur(5px)',
+          }}
+        >
+          <div
+            style={{
+              borderRadius: '12px',
+              color: 'white',
+              backgroundColor: '#2b2b2b',
+              padding: '10%',
+              textAlign: 'center',
+              width: '80%',
+            }}
+          >
+            <h3>🏠 Building (Level {modal.building.level})</h3>
+            <p>Income: ${modal.building.income}</p>
+            <p>Upgrade cost: ${modal.building.upgradeCost}</p>
+
+            <div style={{ display: 'inline-flex', justifyContent: 'center', gap: '10px' }}>
+              <button
+                onClick={handleUpgrade}
+                style={{
+                  flex: 1,
+                  background: '#4f46e5',
+                  color: 'white',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '10px',
+                }}
+              >
+                Upgrade
+              </button>
+              <button
+                onClick={handleSell}
+                style={{
+                  flex: 1,
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '10px',
+                }}
+              >
+                Sell
+              </button>
+              <button
+                onClick={handleCancel}
+                style={{
+                  flex: 1,
+                  background: '#e0e0e0',
+                  color: '#333',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '10px',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
