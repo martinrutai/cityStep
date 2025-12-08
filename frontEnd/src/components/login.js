@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 function Login() {
     const navigate = useNavigate();
     // Assuming useUser provides login, register, AND a dedicated function for OAuth login
-    const { loginUser, registerUser } = useUser(); // Renamed to clarify functionality
+    const { login} = useUser(); // Renamed to clarify functionality
 
     // State for local authentication forms
     const [name, setName] = useState('');
@@ -20,7 +20,10 @@ function Login() {
     const loginHandler = (e) => {
         e.preventDefault();
         // Assume 'loginUser' handles the API call and context update
-        loginUser({ name, password }); 
+        if (login({ name, password }))
+        {
+            navigate('/');
+        }
         // Note: You would typically check for success before navigating
         // navigate('/'); 
     };
@@ -41,7 +44,7 @@ function Login() {
 
             // 2. Call your context function to set the user state
             //    It's crucial that your context or backend handles this data.
-            loginUser(userData); 
+            login(userData); 
             
             // 3. Redirect after successful sign-in
             navigate('/');

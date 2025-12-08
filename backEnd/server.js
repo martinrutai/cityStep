@@ -67,8 +67,8 @@ app.get('/users/:user_id/buildings', (req, res) => {
 app.post('/users/:user_id/buildings', (req, res) => {
   const { user_id } = req.params;
   const { building } = req.body;
-  const sql = "INSERT INTO buildings (`user_id`, `lat`, `lng`, `level`, `income`, `upgradeCost`, `name`) VALUES (?, ?, ?, ?, ?, ?, ?)"
-  db.query(sql, [user_id, building.lat, building.lng, building.level, building.income, building.upgradeCost, building.name], (err, data) => {
+  const sql = "INSERT INTO buildings (`user_id`, `lat`, `lng`, `level`, `income`, `upgradeCost`, `name`,`type`, `incomeMultiplier`, `upgradeCostMultiplier` ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  db.query(sql, [user_id, building.lat, building.lng, building.level, building.income, building.upgradeCost, building.name, building.type, building.incomeMultiplier, building.upgradeCost], (err, data) => {
     if (err){
       console.error("DB INSERT ERROR:", err);   // <-- ADD THIS
       return res.status(500).json("ahoj" + err);
