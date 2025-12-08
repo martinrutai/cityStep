@@ -44,10 +44,9 @@ function Map() {
     { key: 'shop', name: 'Shop', cost: 100, income: 40, upgradeCost: 90, incomeMultiplier: 1.4, upgradeCostMultiplier: 1.5 },
     { key: 'home', name: 'Home', cost: 60, income: 12, upgradeCost: 50, incomeMultiplier: 1.2, upgradeCostMultiplier: 1.3 },
   ];
-
-useEffect(() => {
-  if (!mapContainerRef.current || mapInstanceRef.current) return;
-
+  
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
   const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([51.505, -0.09], 13);
   mapInstanceRef.current = map;
 
