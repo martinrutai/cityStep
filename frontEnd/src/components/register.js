@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 function Register() {
     const navigate = useNavigate();
     // Assuming useUser provides login, register, AND a dedicated function for OAuth login
-    const { login, register, user } = useUser(); // Renamed to clarify functionality
+    const { login, register, loginWithGoogle, user } = useUser(); // Renamed to clarify functionality
 
     // State for local authentication forms
     const [name, setName] = useState('');
@@ -22,7 +22,7 @@ function Register() {
     };
 
     // --- Google OAuth Handlers ---
-    const handleGoogleSuccess = (credentialResponse) => {
+    const handleGoogleSuccess = async (credentialResponse) => {
         try {
             const decodedUser = jwtDecode(credentialResponse.credential);
             console.log('Google User Decoded:', decodedUser);
@@ -36,11 +36,13 @@ function Register() {
             };
 
             // 2. Call your context function to set the user state
-            //    It's crucial that your context or backend handles this data.
-            login(userData); 
+            //    It's crucial that your context or backend handles this data.            
+            const success = await loginWithGoogle(userData); 
             
             // 3. Redirect after successful sign-in
-            navigate('/');
+            if (success) {
+                navigate('/');
+            }
             
         } catch (error) {
             console.error('Google Sign-In Error:', error);
@@ -85,7 +87,6 @@ function Register() {
                 <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
-                    useOneTap
                 />
             </div>
             

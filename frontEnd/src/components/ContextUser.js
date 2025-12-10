@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useEffectEvent, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import initialUser from './user';
 
 
@@ -8,7 +8,7 @@ const API_URL = 'http://localhost:8081';
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(initialUser);
-  const [buildings, setBuildings] = useState([]); 
+  const [buildings, setBuildings] = useState([]);
   const login = async (loginData) => {
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -18,7 +18,7 @@ export function UserProvider({ children }) {
         },
         body: JSON.stringify({ name: loginData.name, password: loginData.password })  // send the name in the body
       });
-      if (!response.ok) 
+      if (!response.ok)
       {
         return false;
       }
@@ -35,6 +35,29 @@ export function UserProvider({ children }) {
       alert('Login failed');
     }
   };
+
+  const loginWithGoogle = async (googleData) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(googleData)
+      });
+      if (!response.ok) {
+        throw new Error('Google login failed on the server.');
+      }
+      const data = await response.json();
+      setUser(data);
+      return true;
+    } catch (err) {
+      console.error('Google login error:', err);
+      alert('Google login failed');
+      return false;
+    }
+  };
+
   const register = async (data) => {
     try {
       const response = await fetch(`${API_URL}/register`, {
@@ -62,7 +85,7 @@ export function UserProvider({ children }) {
         body: JSON.stringify(tasks),
       });
       console.log("response ", response);
-    } 
+    }
     catch (err) {
       console.warn('Could not save tasks to backend:', err);
     }
@@ -92,13 +115,13 @@ export function UserProvider({ children }) {
           console.error('Error loading buildings:', err);
         }
       };
-  
+
       if (user.id) {
         loadBuildings();
       }
     }
   }, [user.id]);
-  
+
   const addBuilding = async (building) => {
     try {
       const response = await fetch(`${API_URL}/users/${user.id}/buildings`, {
@@ -183,7 +206,7 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error('Error updating building:', err);
     }
-    setBuildings(prev => prev.map(b => 
+    setBuildings(prev => prev.map(b =>
       b.id === id ? { ...b, ...updates } : b
     ));
   };
@@ -210,7 +233,8 @@ export function UserProvider({ children }) {
     setBuildings,
     login,
     register,
-    saveTasks
+    saveTasks,
+    loginWithGoogle
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

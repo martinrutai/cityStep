@@ -59,6 +59,32 @@ app.post('/register', (req, res) => {
   });
 });
 
+app.post('/auth/google', async (req, res) => {
+  const { googleId, name, email } = req.body;
+
+  try {
+    let sql = "SELECT * FROM users WHERE google_id = ?";
+    db.query(sql, [googleId], (err, data) => {
+      if (err) return res.status(500).json(err);
+      if (data.length > 0) {
+        return res.json(data[0]);
+      } else {
+        let insertSql = "INSERT INTO users (name, email, google_id, money, level) VALUES (?, ?, ?, 200, 1)";
+        db.query(insertSql, [name, email, googleId], (err, result) => {
+          if (err) return res.status(500).json(err);
+          let selectSql = "SELECT * FROM users WHERE id = ?";
+          db.query(selectSql, [result.insertId], (err, data) => {
+            if (err) return res.status(500).json(err);
+            return res.json(data[0]);
+          });
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during Google authentication' });
+  }
+});
+
 app.get('/users', (req, res) => {
     const sql = "SELECT * FROM users";
     db.query(sql, (err, data) => {

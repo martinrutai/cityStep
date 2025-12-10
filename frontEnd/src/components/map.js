@@ -722,7 +722,7 @@ const handleSell = () => {
       {modal?.type === 'tasks' && (
         <div
           style={{
-            width: '80%',
+            width: '60%',
             maxHeight: '60vh',
             overflowY: 'auto',
             position: 'fixed',

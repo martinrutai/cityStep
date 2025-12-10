@@ -31,6 +31,7 @@ function App() {
   }, []);
 
   return (
+    <GoogleOAuthProvider clientId="509163227130-1lleilqpnuvammbr342a8460tbm1bok3.apps.googleusercontent.com">
     <UserProvider>
       <BrowserRouter>
         <Routes>
@@ -67,6 +68,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </UserProvider>
+    </GoogleOAuthProvider>
   );
 }
 
