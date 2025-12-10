@@ -30,7 +30,7 @@ function Map() {
   const [activeTask, setActiveTask] = useState(null);
   const [activeDistance, setActiveDistance] = useState(null);
   const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '42rvw' : '8vw');
-  const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding } = useUser();
+  const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding, saveTasks} = useUser();
   // State to manage the search input value
   const [searchQuery, setSearchQuery] = useState('');
 
