@@ -88,8 +88,18 @@ app.post('/auth/google', async (req, res) => {
 app.get('/users', (req, res) => {
     const sql = "SELECT * FROM users";
     db.query(sql, (err, data) => {
-        if (err) return res.json("problemik: " + err);
-        return res.json(data);
+      if (err) {
+        // 1. Log the full error to your Node.js console/terminal
+        console.error("Database Query Error:", err);
+        
+        // 2. Return a more informative response to the client
+        // The `err` object often contains `code`, `errno`, and a detailed `sqlMessage`.
+        // We return the whole object for debugging, but in production, you'd be more selective.
+        return res.status(500).json({
+          message: "Database query failed",
+          details: err // Return the full error object
+        });
+      }
     });
 });
 
