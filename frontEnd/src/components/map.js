@@ -31,13 +31,9 @@ function Map() {
   const [activeDistance, setActiveDistance] = useState(null);
   const [bottomMargin, setBottomMargin] = useState(window.innerWidth > 350 && window.innerWidth < 600 ? '42rvw' : '8vw');
   const { user, buildings, addBuilding, removeBuilding, deductMoney, addMoney, setBuildings, updateBuilding } = useUser();
-<<<<<<< HEAD
   // State to manage the search input value
   const [searchQuery, setSearchQuery] = useState('');
 
-=======
-  
->>>>>>> 7d6aa455d395140be035b8401ca99d62d73bab1b
   const BUILDING_TYPES = [
     { key: 'office', name: 'Office', cost: 150, income: 60, upgradeCost: 120, incomeMultiplier: 1.5, upgradeCostMultiplier: 1.6 },
     { key: 'bank', name: 'Bank', cost: 300, income: 160, upgradeCost: 220, incomeMultiplier: 1.6, upgradeCostMultiplier: 1.7 },
