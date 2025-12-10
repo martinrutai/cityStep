@@ -723,8 +723,81 @@ const handleSell = () => {
               >
                 Cancel
               </button>
+
+              
             </div>
           </div>
+        </div>
+      )}
+
+      {modal?.type === 'tasks' && (
+        <div
+          style={{
+            width: '80%',
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            position: 'fixed',
+            top: '20%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 999,
+            background: '#2b2b2b',
+            padding: '20px',
+            borderRadius: '12px',
+            color: 'white',
+          }}
+        >
+          <h2 style={{ marginBottom: '16px' }}>Tasks</h2>
+
+          {modal.tasks?.length > 0 ? (
+            modal.tasks.map((task, i) => (
+              <div
+                key={i}
+                style={{
+                  background: '#393939',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginBottom: '10px',
+                }}
+              >
+                <p><strong>Go to:</strong> {task.goalName}</p>
+                <p><strong>Reward:</strong> ${task.reward}</p>
+
+                <button
+                  onClick={() => handleSelectTask(task)}
+                  style={{
+                    marginTop: '10px',
+                    background: '#4f46e5',
+                    border: 'none',
+                    padding: '8px 12px',
+                    color: 'white',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Start Task
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No tasks generated.</p>
+          )}
+
+          <button
+            onClick={() => setModal(null)}
+            style={{
+              marginTop: '16px',
+              background: '#ef4444',
+              border: 'none',
+              padding: '8px 12px',
+              color: 'white',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              width: '100%',
+            }}
+          >
+            Close
+          </button>
         </div>
       )}
     </div>
