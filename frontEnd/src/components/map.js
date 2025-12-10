@@ -79,28 +79,17 @@ function Map() {
 }, []);
 
 const handleGetTask = async () => {
+  console.log("szaciatok funkcie");
   if (buildings.length < 2) {
     alert("You need at least 2 buildings to generate a task!");
     return;
   }
 
   const tasks = ulozky(buildings);
-  console.log("Generated tasks:", tasks);
 
   setModal({ type: 'tasks', tasks });
 
-  try {
-    const res = await fetch('http://localhost:8081/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tasks),
-    });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const data = await res.json();
-    console.log('Tasks saved to database:', data);
-  } catch (err) {
-    console.warn('Could not save tasks to backend:', err);
-  }
+  saveTasks(tasks)
 };
 
 function placeBuilding(building) {

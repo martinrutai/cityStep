@@ -3,6 +3,18 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 const bcrypt= require('bcrypt');
+const util = require('util');
+
+// Add this helper function somewhere accessible in your server code:
+const dbQueryPromise = (sql, params) => {
+  return new Promise((resolve, reject) => {
+    // We are using the original callback-style db.query here
+    db.query(sql, params, (dbErr, data) => { 
+      if (dbErr) return reject(dbErr); // <-- IMPORTANT: Reject with the clean DB error!
+      resolve(data);
+    });
+  });
+};
 
 const app = express();
 app.use(cors());
@@ -75,6 +87,41 @@ app.post('/users/:user_id/buildings', (req, res) => {
     }
     res.json(data);
   });
+});
+
+app.post('/users/:user_id/tasks', async (req, res) => {
+  const tasks = req.body;
+  
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty tasks array." });
+  }
+  
+  const sql = "INSERT INTO tasks (`fromId`, `goalId`, `goalName`, `reward`, `distance`) VALUES (?, ?, ?, ?, ?) ";
+  
+  try {
+    // Use the custom promise wrapper for each query
+    const insertionPromises = tasks.map(task => {
+      const params = [task.fromId, task.goalId, task.goalName, task.reward, task.distance];
+      return dbQueryPromise(sql, params); // <--- Using the Promise wrapper
+    });
+
+    const results = await Promise.all(insertionPromises);
+
+    res.status(201).json({ message: "Tasks saved successfully", results: results });
+
+  } catch (dbErr) { // Renamed 'err' to 'dbErr' for clarity
+    // Now, dbErr will be the clean database error object, not the circular Query object!
+    
+    console.error("Task saving error (DB Error):", dbErr);
+    
+    // We can now safely send the error details as they are no longer circular
+    res.status(500).json({ 
+        error: "Failed to save one or more tasks", 
+        // Use the safe string properties
+        details: dbErr.sqlMessage || dbErr.message, 
+        tasks 
+    });
+  }
 });
 
 app.get('/users/:user_id/buildings/:id', (req, res) => {
