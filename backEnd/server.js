@@ -1,7 +1,7 @@
 //RUTAI NIGGER KOD
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const bcrypt= require('bcrypt');
 const util = require('util');
 
@@ -23,7 +23,7 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'QWE65962',
     database: 'citystep'
 });
 
