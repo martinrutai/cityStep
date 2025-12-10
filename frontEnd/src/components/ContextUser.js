@@ -52,6 +52,21 @@ export function UserProvider({ children }) {
       alert('Registration failed');
     }
   };
+  const saveTasks = async (tasks) => {
+    console.log("tasky: ", tasks);
+    try
+    {
+      const response = await fetch(`${API_URL}/users/${user.id}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tasks),
+      });
+      console.log("response ", response);
+    } 
+    catch (err) {
+      console.warn('Could not save tasks to backend:', err);
+    }
+  }
 
   useEffect(() => {
     if (user)
@@ -194,7 +209,8 @@ export function UserProvider({ children }) {
     addMoney,
     setBuildings,
     login,
-    register
+    register,
+    saveTasks
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
